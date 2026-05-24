@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PopGlace — Premium Ice Cream Shop</title>
+  <title>Vigur</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -278,7 +278,7 @@
       cursor: pointer;
       transition: border-color .3s, background .3s, transform .3s;
       position: absolute;
-      right: 6%;
+      right: 7%;
       flex-shrink: 0;
     }
     .hamburger:hover {
@@ -1736,7 +1736,7 @@
     width: min(322px, 100%) !important;
     height: auto;
     position: relative;
-    left: 22%;
+  margin:0px auto;
 }
     }
 
@@ -1843,7 +1843,12 @@
     }
 
     /* ── CUSTOM CURSOR ─────────────────────────────────────── */
-    * { cursor: none !important; }
+    @media (pointer: fine) {
+      * { cursor: none !important; }
+    }
+    @media (pointer: coarse) {
+      #cursor-dot, #cursor-ring { display: none !important; }
+    }
     #cursor-dot {
       position: fixed;
       width: 10px; height: 10px;
@@ -1880,9 +1885,124 @@
     body.cursor-click #cursor-ring {
       width: 28px; height: 28px;
     }
+
+    /* ── MENU INFO BUTTON ──────────────────────────────────── */
+    .menu-info-btn { display: none; }
+
+    @media (max-width: 768px) {
+      .waffle-item .menu-item-info p { display: none; }
+      .menu-dots { display: none; }
+      .menu-info-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--pink), var(--gold));
+        color: var(--white);
+        font-size: .82rem;
+        font-weight: 700;
+        border: none;
+        box-shadow: 0 3px 10px rgba(197,155,103,.4);
+        transition: transform .2s ease, box-shadow .2s ease;
+      }
+      .menu-info-btn:hover {
+        transform: scale(1.12);
+        box-shadow: 0 5px 16px rgba(197,155,103,.55);
+      }
+    }
+
+    /* ── MENU INFO MODAL ───────────────────────────────────── */
+    .minfo-overlay {
+      position: fixed; inset: 0;
+      background: rgba(28,27,46,.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 99990;
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .minfo-overlay.open {
+      opacity: 1; pointer-events: all;
+    }
+    .minfo-card {
+      background: var(--cream);
+      border-radius: 28px 28px 0 0;
+      padding: 36px 28px 44px;
+      width: 100%; max-width: 480px;
+      position: relative;
+      transform: translateY(100%);
+      transition: transform .38s cubic-bezier(.32,1.2,.64,1);
+      text-align: center;
+    }
+    .minfo-overlay.open .minfo-card {
+      transform: translateY(0);
+    }
+    .minfo-card::before {
+      content: '';
+      display: block;
+      width: 40px; height: 4px;
+      background: rgba(28,27,46,.15);
+      border-radius: 2px;
+      margin: 0 auto 28px;
+    }
+    .minfo-close {
+      position: absolute; top: 16px; right: 20px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(28,27,46,.07);
+      border: none;
+      font-size: .85rem;
+      color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .minfo-close:hover { background: rgba(28,27,46,.13); }
+    .minfo-emoji {
+      font-size: 3.2rem;
+      margin-bottom: 12px;
+      line-height: 1;
+    }
+    .minfo-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 14px;
+    }
+    .minfo-desc {
+      font-size: .88rem;
+      color: var(--text-light);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .minfo-price {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--pink), var(--gold));
+      color: var(--white);
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      padding: 8px 28px;
+      border-radius: 99px;
+    }
   </style>
 </head>
 <body>
+
+<!-- ─── MENU INFO MODAL ──────────────────────────────────── -->
+<div class="minfo-overlay" id="minfoOverlay">
+  <div class="minfo-card" id="minfoCard">
+    <button class="minfo-close" id="minfoClose">✕</button>
+    <div class="minfo-emoji" id="minfoEmoji"></div>
+    <h3 class="minfo-title" id="minfoTitle"></h3>
+    <p class="minfo-desc" id="minfoDesc"></p>
+    <div class="minfo-price" id="minfoPrice"></div>
+  </div>
+</div>
+
 
 <!-- ─── CUSTOM CURSOR ───────────────────────────────────── -->
 <div id="cursor-dot"></div>
@@ -2017,51 +2137,55 @@
 
     <div class="menu-tab-content active" id="tab-waffle" data-aos="fade-up">
       <div class="menu-grid">
-        <div class="menu-item">
+        <div class="menu-item waffle-item">
           <span class="menu-item-emoji">🥭</span>
           <div class="menu-item-info">
             <h4>Hõrk mango</h4>
-            <p>kanelõun, vanillije jäätis, pähklite britell, pistaasiakoor, soolased maapähklid</p>
+            <p>kaneeliõun, vanillije jäätis, pähklid, pistaasiakoor, soolased maapähklid</p>
           </div>
           <div class="menu-dots"></div>
           <div class="menu-price">7.9 €</div>
+          <button class="menu-info-btn" aria-label="Vaata koostisosi">!</button>
         </div>
-        <div class="menu-item">
+        <div class="menu-item waffle-item">
           <span class="menu-item-emoji">🍓</span>
           <div class="menu-item-info">
             <h4>Marjade pomm</h4>
-            <p>maasikad, mustikas, vanillije jäätis, punamarjade britell, pistaasiakoor</p>
+            <p>maasikad, mustikas, vanillije jäätis, punasedmarjad, pistaasiakoor</p>
           </div>
           <div class="menu-dots"></div>
           <div class="menu-price">7.9 €</div>
+          <button class="menu-info-btn" aria-label="Vaata koostisosi">!</button>
         </div>
-        <div class="menu-item">
+        <div class="menu-item waffle-item">
           <span class="menu-item-emoji">🍫</span>
           <div class="menu-item-info">
             <h4>Šokolaadi segu</h4>
-            <p>maasikad, vanillije jäätis, pähklite britell, nutella, tume šokolaad</p>
+            <p>maasikad, vanillije jäätis, pähklid, nutella, tume šokolaad</p>
           </div>
           <div class="menu-dots"></div>
           <div class="menu-price">7.9 €</div>
+          <button class="menu-info-btn" aria-label="Vaata koostisosi">!</button>
         </div>
-        <div class="menu-item">
+        <div class="menu-item waffle-item">
           <span class="menu-item-emoji">🥜</span>
           <div class="menu-item-info">
             <h4>Pähkli suudlus</h4>
-            <p>banaan, puuviljajäätis, pähklite britell, maapähklivõi, soolased maapähklid, soolane karamelli kaste</p>
+            <p>banaan, puuviljajäätis, pähklid, maapähklivõi, soolased maapähklid, soolane karamelli kaste</p>
           </div>
           <div class="menu-dots"></div>
           <div class="menu-price">7.9 €</div>
+          <button class="menu-info-btn" aria-label="Vaata koostisosi">!</button>
         </div>
-        <div class="menu-item">
+        <div class="menu-item waffle-item">
           <span class="menu-item-emoji">🫐</span>
           <div class="menu-item-info">
             <h4>Veereta täringut</h4>
-            <p>Ei tea, mida valida? Lase saatusta otsustada! Küsi meie personalist.
-</p>
+            <p>Ei tea, mida valida? Lase saatusta otsustada! Küsi meie personalist.</p>
           </div>
           <div class="menu-dots"></div>
           <div class="menu-price">7.9 €</div>
+          <button class="menu-info-btn" aria-label="Vaata koostisosi">!</button>
         </div>
       </div>
     </div>
@@ -2579,6 +2703,45 @@
   }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeLightbox();
+  });
+</script>
+
+<script>
+  /* ── MENU INFO MODAL ───────────────────────────────────── */
+  const minfoOverlay = document.getElementById('minfoOverlay');
+  const minfoClose   = document.getElementById('minfoClose');
+
+  function openMinfo(emoji, title, desc, price) {
+    document.getElementById('minfoEmoji').textContent = emoji;
+    document.getElementById('minfoTitle').textContent = title;
+    document.getElementById('minfoDesc').textContent  = desc;
+    document.getElementById('minfoPrice').textContent = price;
+    minfoOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMinfo() {
+    minfoOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.menu-info-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const item  = btn.closest('.menu-item');
+      const emoji = item.querySelector('.menu-item-emoji').textContent.trim();
+      const title = item.querySelector('h4').textContent.trim();
+      const desc  = item.querySelector('p').textContent.trim();
+      const price = item.querySelector('.menu-price').textContent.trim();
+      openMinfo(emoji, title, desc, price);
+    });
+  });
+
+  minfoClose.addEventListener('click', closeMinfo);
+  minfoOverlay.addEventListener('click', e => {
+    if (e.target === minfoOverlay) closeMinfo();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeMinfo();
   });
 </script>
 </body>
